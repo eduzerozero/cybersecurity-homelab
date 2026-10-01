@@ -74,3 +74,24 @@ One of the commands I tested was:
 The `-sV` option enables service/version detection, while `--version-all` tells Nmap to try all available version detection probes.
 
 Interestingly, while experimenting with Nmap and service detection, I also completed one of the challenges in OWASP Juice Shop.
+
+
+## HTTP Analysis with Burp Suite
+
+After testing the application with Nmap, I started using Burp Suite to get more information about the login process.
+
+I used Burp Suite to inspect the HTTP communication between my browser and OWASP Juice Shop.
+
+First, I navigated to the login page and looked at the requests that appeared in the Burp Suite HTTP history.
+
+After that, I created a test account to understand what happens when a user registers on the website.
+
+While creating the account, I used Burp Suite to inspect:
+
+- the HTTP request
+- the request method (GET, POST, etc.)
+- the API endpoint
+- the data sent in the request body
+- the HTTP status code returned by the server
+
+My goal was not only to complete a challenge, but to understand how the browser communicates with the Juice Shop backend and how user data is sent to the API.
