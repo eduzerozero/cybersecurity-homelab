@@ -95,3 +95,34 @@ While creating the account, I used Burp Suite to inspect:
 - the HTTP status code returned by the server
 
 My goal was not only to complete a challenge, but to understand how the browser communicates with the Juice Shop backend and how user data is sent to the API.
+
+
+## Login and Authentication Analysis
+
+After creating a test account, I wanted to take a closer look at the login process of OWASP Juice Shop.
+
+I used Burp Suite to compare a failed login attempt with a successful login attempt.
+
+### Failed Login
+
+First, I intentionally used wrong login credentials to see how the application responds to an unsuccessful login.
+
+With Burp Suite, I inspected the request and response and looked at:
+
+- the HTTP method
+- the API endpoint
+- the request body
+- the response
+- the HTTP status code
+
+### Successful Login
+
+After that, I logged in with the correct credentials and compared the successful request and response with the failed login attempt.
+
+One interesting difference I noticed was that after a successful login, the application returns an authentication token.
+
+I observed that authentication-related information is stored by the application in the browser, including in cookies and local storage.
+
+This was interesting because it showed me how a web application can keep track of an authenticated user after the login request is completed.
+
+
