@@ -216,3 +216,63 @@ When I decoded the signature, I did not receive readable JSON like with the head
 Instead, the result contained binary data.
 
 This helped me understand that the signature has a different purpose than the header and payload. It is used as part of the cryptographic verification of the token.
+
+## Broken Access Control Testing
+
+After analyzing the JWT, I continued testing how OWASP Juice Shop handles access to user resources.
+
+My JWT contained the following basket ID:
+
+    "bid": 6
+
+I first sent a request for my own basket using Burp Suite Repeater:
+
+    GET /rest/basket/6
+
+The server returned:
+
+    HTTP/1.1 200 OK
+
+The response contained the products that I had previously added to my own basket.
+
+### Testing Another Basket ID
+
+Next, I changed only the basket ID while keeping my own authentication token:
+
+    GET /rest/basket/5
+
+The request also returned:
+
+    HTTP/1.1 200 OK
+
+However, the response contained different products that were not part of my own basket.
+
+This showed me that being authenticated and being authorized to access a specific resource are two different things.
+
+### Authentication vs. Authorization
+
+Authentication answers:
+
+    "Who is the user?"
+
+Authorization answers:
+
+    "Is this user allowed to access this resource?"
+
+In this test, my JWT identified my account and basket 6, but changing the requested basket ID allowed me to read another basket.
+
+This demonstrates a Broken Access Control / IDOR-style vulnerability in the intentionally vulnerable OWASP Juice Shop environment.
+
+### HTTP Caching Observation
+
+During the test, I initially received:
+
+    HTTP/1.1 304 Not Modified
+
+I noticed that the request contained an `If-None-Match` header.
+
+After removing this header in Burp Repeater and sending the request again, the server returned the full response with:
+
+    HTTP/1.1 200 OK
+
+This also helped me understand how HTTP caching and ETags can affect responses while testing an API.
