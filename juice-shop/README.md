@@ -276,3 +276,86 @@ After removing this header in Burp Repeater and sending the request again, the s
     HTTP/1.1 200 OK
 
 This also helped me understand how HTTP caching and ETags can affect responses while testing an API.
+
+
+## Cross-Site Scripting (XSS) Testing
+
+After testing authentication and access control, I started looking into Cross-Site Scripting (XSS).
+
+My first goal was to understand how OWASP Juice Shop handles user-controlled HTML input.
+
+### HTML Injection Test
+
+First, I used a simple HTML tag:
+
+    <b>Hello</b>
+
+The application interpreted the HTML instead of displaying the complete input as plain text.
+
+This showed me that HTML input was being processed by the browser.
+
+### JavaScript Execution
+
+After that, I tested whether JavaScript could also be executed.
+
+I used the following payload in my local Juice Shop environment:
+
+    <img src=x onerror=alert('XSS')>
+
+The browser displayed the JavaScript alert.
+
+This confirmed that JavaScript could be executed through the supplied HTML input.
+
+### Understanding the Payload
+
+The payload contains an image element:
+
+    <img src=x>
+
+The browser tries to load `x` as an image resource.
+
+Using Burp Suite, I could see the browser automatically generating the following request:
+
+    GET /x
+
+Because `x` is not a valid image resource, loading the image fails.
+
+The `onerror` event handler is then triggered:
+
+    onerror=alert('XSS')
+
+This executes the JavaScript and displays the alert.
+
+The process can be summarized as:
+
+    User Input
+        |
+        v
+    HTML interpreted by browser
+        |
+        v
+    Browser tries to load /x
+        |
+        v
+    Image loading fails
+        |
+        v
+    onerror event is triggered
+        |
+        v
+    JavaScript executes
+
+### HTTP Caching Observation
+
+While analyzing the `/x` request in Burp Suite, I also noticed the following request headers:
+
+    If-None-Match: ...
+    If-Modified-Since: ...
+
+These headers are related to HTTP caching.
+
+`If-Modified-Since` allows the browser to ask the server whether a resource has changed since a specific date.
+
+`If-None-Match` performs a similar check using an ETag.
+
+I had already encountered `If-None-Match` while analyzing the Juice Shop basket API, where it resulted in a `304 Not Modified` response.
