@@ -359,3 +359,30 @@ These headers are related to HTTP caching.
 `If-None-Match` performs a similar check using an ETag.
 
 I had already encountered `If-None-Match` while analyzing the Juice Shop basket API, where it resulted in a `304 Not Modified` response.
+
+## SQL Injection Testing
+
+After testing XSS, I started investigating SQL Injection
+in the OWASP Juice Shop login functionality.
+
+First, I intercepted a login request using Burp Suite
+and sent it to Repeater.
+
+I modified the email parameter by adding a single quote:
+
+    test2@gmail.com'
+
+After sending the modified request, the application
+returned a SQLite database error:
+
+    SQLITE_ERROR: unrecognized token
+
+The response also included parts of the SQL query and
+internal stack trace information.
+
+This showed me that my input was affecting the SQL query
+and that the application was exposing internal database
+error information.
+
+My next goal is to compare different inputs and better
+understand how SQL Injection works.
