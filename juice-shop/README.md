@@ -386,3 +386,37 @@ error information.
 
 My next goal is to compare different inputs and better
 understand how SQL Injection works.
+
+##SQL Injection - Authentication Bypass
+
+After testing different inputs in the login form, I noticed that adding a single quote (') caused an SQLite database error.
+
+I continued experimenting with Burp Suite Repeater to understand how the application handles SQL queries.
+
+##Authentication Bypass
+
+I tested the following input in the email field:
+
+' OR 1=1--
+
+I kept the password field filled with a test password.
+
+After sending the request, the server responded with:
+
+HTTP/1.1 200 OK
+
+The response contained an authentication token and the email address admin@juice-sh.op.
+
+I also received a success notification from OWASP Juice Shop confirming that I had completed the challenge.
+
+##Why It Worked
+
+The payload changed the logic of the SQL query.
+
+' closes the original string.
+
+OR 1=1 adds a condition that is always true.
+
+-- comments out the remaining SQL statement.
+
+Because the application handled the input insecurely, the login verification could be bypassed.
