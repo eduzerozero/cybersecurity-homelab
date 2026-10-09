@@ -420,3 +420,133 @@ OR 1=1 adds a condition that is always true.
 -- comments out the remaining SQL statement.
 
 Because the application handled the input insecurely, the login verification could be bypassed.
+
+## Information Disclosure & File Access Testing
+
+### Objective
+
+I wanted to understand how OWASP Juice Shop handles publicly accessible files and whether restricted files can be accessed using Burp Suite.
+
+### 1. Discovering the FTP Directory
+
+I opened the following URL in my browser:
+
+```text
+http://<LAB-IP>:3000/ftp/
+```
+
+The server displayed a directory listing containing several files, including:
+
+- `acquisitions.md`
+- `package.json.bak`
+- `coupons_2013.md.bak`
+- `incident-support.kdbx`
+
+This showed me that the application exposes a directory containing potentially sensitive files.
+
+### 2. Testing Access Without Authentication
+
+I opened `acquisitions.md` and noticed that the document was marked as confidential.
+
+I used Burp Suite Repeater to send a GET request without cookies or an authentication token.
+
+```http
+GET /ftp/acquisitions.md HTTP/1.1
+Host: <LAB-IP>:3000
+Accept: */*
+Connection: close
+```
+
+The server returned `200 OK` and the document content.
+
+This confirmed that the file was accessible without authentication.
+
+### 3. Testing Restricted Backup Files
+
+Next, I tried to access the backup file `package.json.bak`.
+
+```http
+GET /ftp/package.json.bak HTTP/1.1
+```
+
+The server responded with:
+
+```http
+HTTP/1.1 403 Forbidden
+```
+
+The error message was:
+
+```text
+Only .md and .pdf files are allowed!
+```
+
+I learned that Juice Shop restricts access based on file extensions.
+
+### 4. Bypassing the File Extension Restriction
+
+I tested a modified URL containing a double-encoded null-byte sequence.
+
+```http
+GET /ftp/package.json.bak%2500.md HTTP/1.1
+```
+
+This time, the server returned:
+
+```http
+HTTP/1.1 200 OK
+```
+
+The response contained the contents of the backup file, including application dependencies and version information.
+
+Juice Shop also confirmed that I had completed the challenge.
+
+This showed me how inconsistent URL processing and file validation can lead to unauthorized file access.
+
+### 5. Path Traversal Testing
+
+I also tested whether I could access files outside the FTP directory.
+
+First request:
+
+```http
+GET /ftp/../package.json HTTP/1.1
+```
+
+Second request:
+
+```http
+GET /ftp/%2e%2e/package.json HTTP/1.1
+```
+
+Both requests returned:
+
+```http
+HTTP/1.1 403 Forbidden
+```
+
+These tests did not demonstrate a successful path traversal.
+
+However, the error responses included stack traces with internal application paths and information about Express.
+
+### What I Learned
+
+- How to inspect HTTP requests and responses using Burp Suite Repeater
+- How publicly accessible directories can expose sensitive information
+- Why backup files should not be stored in publicly accessible locations
+- How file extension restrictions can sometimes be bypassed
+- How URL encoding affects request processing
+- Why detailed error messages can reveal internal application information
+- Why unsuccessful security tests are also useful to document
+
+### Security Recommendations
+
+To prevent these types of vulnerabilities, applications should:
+
+- Keep confidential documents and backup files outside public web directories
+- Validate and normalize file paths consistently
+- Use strict allowlists for files that users are allowed to access
+- Disable unnecessary directory listings
+- Avoid exposing internal stack traces in production environments
+
+All tests were performed against my own local OWASP Juice Shop Docker environment for educational purposes.
