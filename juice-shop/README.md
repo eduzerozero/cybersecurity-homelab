@@ -550,3 +550,68 @@ To prevent these types of vulnerabilities, applications should:
 - Avoid exposing internal stack traces in production environments
 
 All tests were performed against my own local OWASP Juice Shop Docker environment for educational purposes.
+
+## DOM-Based XSS Analysis
+
+After testing API authentication and HTTP methods,
+I continued investigating Cross-Site Scripting (XSS)
+in OWASP Juice Shop.
+
+First, I entered a simple HTML payload into the search field:
+
+    <b>CyberSecurity</b>
+
+The application displayed the text in bold instead
+of showing the HTML tags.
+
+This showed me that the search input was being
+interpreted as HTML.
+
+Next, I tested the following XSS payload:
+
+    <img src=x onerror=alert('XSS')>
+
+After submitting the search, a JavaScript alert
+appeared with the message:
+
+    XSS
+
+I also noticed that the search input was included
+in the URL.
+
+To understand how the application processed my input,
+I opened Chrome Developer Tools and inspected the
+HTML elements.
+
+I found that my injected HTML was present in the DOM,
+including the onerror event handler.
+
+Next, I used a DOM Breakpoint to investigate which
+JavaScript function was modifying the HTML.
+
+The debugger stopped at the following code:
+
+    setProperty(n, t, r) {
+        n[t] = r;
+    }
+
+I inspected the variables and found:
+
+    n = span#searchValue
+    t = "innerHTML"
+    r = <img src=x onerror=alert('XSS')>
+
+This showed me that my input was being inserted
+into the DOM using the innerHTML property.
+
+I learned that innerHTML can be dangerous when
+untrusted user input is inserted without proper
+sanitization.
+
+This helped me understand how DOM-based XSS works
+and how browser developer tools can be used to
+investigate JavaScript vulnerabilities.
+
+My next goal is to understand how Angular handles
+HTML sanitization and how developers can prevent
+DOM-based XSS vulnerabilities
