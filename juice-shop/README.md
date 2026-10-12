@@ -615,3 +615,57 @@ investigate JavaScript vulnerabilities.
 My next goal is to understand how Angular handles
 HTML sanitization and how developers can prevent
 DOM-based XSS vulnerabilities
+
+## Mass Assignment and Privilege Escalation
+
+After testing SQL Injection and XSS, I started
+investigating Mass Assignment vulnerabilities
+in OWASP Juice Shop.
+
+First, I registered a new test account and
+intercepted the registration request using Burp Suite.
+
+The registration endpoint was:
+
+    POST /api/Users/
+
+I sent the request to Burp Repeater and added
+an additional JSON property:
+
+    "role": "admin"
+
+After sending the modified request, the server
+responded with:
+
+    HTTP/1.1 201 Created
+
+The response showed that the new account was
+created with the admin role.
+
+Next, I logged in with the new account and
+decoded the JWT payload.
+
+The JWT contained:
+
+    "role": "admin"
+
+To verify the impact, I opened the administration
+page:
+
+    /#/administration
+
+I was able to access the administration panel
+and view other users' email addresses.
+
+This confirmed that a normal user could assign
+themselves administrator privileges during
+registration.
+
+I learned that Mass Assignment happens when
+an application accepts user-controlled properties
+without properly restricting which fields can
+be modified.
+
+To prevent this vulnerability, developers should
+allowlist accepted registration fields and assign
+roles on the server instead of trusting user input.
