@@ -105,7 +105,7 @@ I used Burp Suite to compare a failed login attempt with a successful login atte
 
 ### Failed Login
 
-First, I intentionally used wrong login credentials to see how the application responds to an unsuccessful login.
+First, I intentionally used wrong login credentials to see how the application responds to an unsuccessful login
 
 With Burp Suite, I inspected the request and response and looked at:
 
