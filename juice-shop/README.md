@@ -669,3 +669,73 @@ be modified.
 To prevent this vulnerability, developers should
 allowlist accepted registration fields and assign
 roles on the server instead of trusting user input.
+
+## CORS and Security Misconfiguration Testing
+
+After testing Mass Assignment, I started
+investigating HTTP security headers and CORS
+in OWASP Juice Shop.
+
+First, I sent a GET request using Burp Suite
+and inspected the response headers.
+
+I found the following header:
+
+    Access-Control-Allow-Origin: *
+
+I also noticed that the Content-Security-Policy
+header was missing.
+
+Next, I tested the public Products API with
+a different Origin header.
+
+The server responded with:
+
+    HTTP/1.1 200 OK
+
+After that, I tested a protected basket endpoint
+without authentication.
+
+The server returned:
+
+    HTTP/1.1 401 Unauthorized
+
+With a valid JWT token, the same endpoint
+returned:
+
+    HTTP/1.1 200 OK
+
+Next, I tested a CORS preflight request using
+the OPTIONS method.
+
+The server responded with:
+
+    HTTP/1.1 204 No Content
+    Access-Control-Allow-Origin: *
+    Access-Control-Allow-Headers: authorization
+
+Finally, I created a local web server using Python
+to test Cross-Origin requests in Chrome.
+
+    python3 -m http.server 8085
+
+I sent a JavaScript fetch request from the
+local test page using an invalid JWT token.
+
+The browser was able to read the response,
+but the server returned:
+
+    HTTP/1.1 401 Unauthorized
+
+The error response also revealed information
+about the Express framework.
+
+I learned that CORS controls whether browsers
+allow JavaScript to read Cross-Origin responses.
+
+However, CORS does not replace authentication
+or authorization.
+
+The application allowed Cross-Origin requests,
+but I did not find an authentication bypass
+through CORS during these tests.
