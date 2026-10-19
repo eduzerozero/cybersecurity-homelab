@@ -749,3 +749,4 @@ I documented the following vulnerabilities.
 |----|---------------|----------|
 | 001 | [Mass Assignment and Privilege Escalation](findings/001-mass-assignment.md) | High |
 | 002 | [SQL Injection Authentication Bypass](findings/002-sql-injection.md) | Critical |
+| 003 | [Broken Access Control (IDOR)](findings/003-broken-access-control.md) | High |
