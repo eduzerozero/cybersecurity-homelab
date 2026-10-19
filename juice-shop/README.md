@@ -748,3 +748,4 @@ I documented the following vulnerabilities.
 | ID | Vulnerability | Severity |
 |----|---------------|----------|
 | 001 | [Mass Assignment and Privilege Escalation](findings/001-mass-assignment.md) | High |
+| 002 | [SQL Injection Authentication Bypass](findings/002-sql-injection.md) | Critical |
