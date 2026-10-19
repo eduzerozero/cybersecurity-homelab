@@ -739,3 +739,12 @@ or authorization.
 The application allowed Cross-Origin requests,
 but I did not find an authentication bypass
 through CORS during these tests.
+
+## Security Findings
+
+During my security testing of OWASP Juice Shop,
+I documented the following vulnerabilities.
+
+| ID | Vulnerability | Severity |
+|----|---------------|----------|
+| 001 | [Mass Assignment and Privilege Escalation](findings/001-mass-assignment.md) | High |
