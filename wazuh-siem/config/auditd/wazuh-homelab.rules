@@ -1,0 +1,13 @@
+# Wazuh SIEM Homelab - Custom Auditd Rules
+
+# File Integrity Monitoring
+-w /home/zerozero/fim-lab -p wa -k wazuh_fim
+
+# User Account Monitoring
+-w /etc/passwd -p wa -k user_account_changes
+
+# Group Modification Monitoring
+-w /etc/group -p wa -k user_group_changes
+
+# Privilege Escalation Monitoring
+-w /usr/sbin/usermod -p x -k usermod_execution
