@@ -1,0 +1,67 @@
+<!-- Local rules -->
+
+<!-- Modify it at your will. -->
+<!-- Copyright (C) 2015, Wazuh Inc. -->
+
+<!-- Example -->
+<group name="local,syslog,sshd,">
+
+  <!--
+  Dec 10 01:02:02 host sshd[1234]: Failed none for root from 1.1.1.1 port 1066 ssh2
+  -->
+<group name="auditd,linux_command_execution,">
+  <rule id="100100" level="5">
+    <if_sid>80700</if_sid>
+    <field name="audit.key">^sudo_execution$</field>
+    <description>Custom detection: sudo execution monitored by auditd</description>
+    <group>auditd,sudo_execution,</group>
+  </rule>
+</group>
+
+<group name="syscheck,critical_file_monitoring,">
+  <rule id="100101" level="10">
+    <if_sid>550</if_sid>
+    <match>File '/etc/passwd' modified</match>
+    <description>Critical system file modified: /etc/passwd</description>
+    <group>fim,critical_file_modification,</group>
+  </rule>
+</group>
+
+<group name="auditd,user_account_monitoring,">
+
+  <rule id="100103" level="10">
+    <if_sid>80700</if_sid>
+    <field name="audit.key">^user_account_changes$</field>
+    <field name="audit.command">^useradd$</field>
+    <description>Linux user account creation detected via auditd</description>
+    <group>account_creation,linux_security,</group>
+  </rule>
+
+</group>
+
+<group name="auditd,linux_group_monitoring,">
+
+  <rule id="100104" level="10">
+    <if_sid>80700</if_sid>
+    <field name="audit.key">^user_group_changes$</field>
+    <field name="audit.command">^usermod$</field>
+    <description>Linux user group modification detected via auditd</description>
+    <group>group_modification,linux_security,</group>
+  </rule>
+
+</group>
+<group name="auditd,privilege_escalation,">
+
+  <rule id="100105" level="12">
+    <if_sid>80700</if_sid>
+    <field name="audit.type">^SYSCALL$</field>
+    <field name="audit.key">^usermod_execution$</field>
+    <field name="audit.command">^usermod$</field>
+    <field name="audit.execve.a0">^usermod$</field>
+    <field name="audit.execve.a1">^-aG$</field>
+    <field name="audit.execve.a2">^sudo$</field>
+    <description>Potential privilege escalation: usermod command targeting sudo group</description>
+    <group>privilege_escalation,linux_security,</group>
+  </rule>
+
+</group>
