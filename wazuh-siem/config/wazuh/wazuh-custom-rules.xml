@@ -67,3 +67,12 @@
   </rule>
 
 </group>
+<group name="windows,windows_security,authentication_failed,">
+
+  <rule id="100200" level="8">
+    <if_sid>60122</if_sid>
+    <description>Custom detection: Windows failed login attempt</description>
+    <group>windows_failed_login,authentication_failed,</group>
+  </rule>
+
+</group>
