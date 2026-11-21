@@ -1,4 +1,4 @@
-##Wazuh SIEM – Cybersecurity Homelab
+# Wazuh SIEM – Cybersecurity Homelab
 
 #Project Overview
 
@@ -6,7 +6,7 @@ This project documents the deployment and configuration of a Wazuh-based Securit
 
 The objective is to gain hands-on experience in security monitoring, log analysis, detection engineering, file integrity monitoring, and incident investigation.
 
-The homelab uses a dedicated Ubuntu virtual machine as the Wazuh server and a Raspberry Pi as a monitored Linux endpoint.
+The homelab uses a dedicated Ubuntu virtual machine as the Wazuh server, a Raspberry Pi as a monitored Linux endpoint, and a Windows 11 workstation for Windows security monitoring and detection engineering.
 
 #Lab Architecture
 
@@ -70,65 +70,37 @@ Raspberry Pi → Wazuh Agent → Wazuh Manager → Filebeat → Wazuh Indexer �
 
 #Detection Engineering
 
-Six custom Wazuh detection rules were developed and tested.
+## Detection Engineering
 
-Rule ID
+Eight custom Wazuh detection rules were developed for Linux and Windows security monitoring.
 
-Detection
+| Rule ID | Detection | Severity | Validation |
+|---|---|---|---|
+| 100100 | Sudo Command Execution | 5 | Live test |
+| 100101 | Critical File Modification | 10 | Live test |
+| 100103 | Linux User Account Creation | 10 | Live test |
+| 100104 | Linux Group Modification | 10 | Live test |
+| 100105 | Potential Privilege Escation | 12 | Live test |
+| 100106 | SSH Brute-Force Detection | 10 | Wazuh Logtest |
+| 100200 | Windows Failed Authentication | 8 | Live test |
+| 100201 | Windows Brute-Force Detection | 10 | Live test |
 
-Severity
+The custom rules are available in `config/wazuh/wazuh-custom-rules.xml`.
 
-Validation
+### Windows Brute-Force Detection
 
-100100
+Implemented custom Wazuh rules to detect failed Windows authentication attempts using Windows Security Event ID 4625.
 
-Sudo Command Execution
+Rule 100201 correlates five failed authentication attempts within 60 seconds for the same target username.
 
-5
+The detection was successfully validated using controlled authentication failures on a Windows 11 endpoint.
 
-Live test
+The resulting alert was classified as Level 10 and mapped to MITRE ATT&CK technique T1110 (Brute Force).
 
-100101
+The positive detection test passed. A negative correlation test involving different target accounts remains pending.
 
-Critical File Modification
+For technical details, see Windows Brute-Force Detection.
 
-10
-
-Live test
-
-100103
-
-Linux User Account Creation
-
-10
-
-Live test
-
-100104
-
-Linux Group Modification
-
-10
-
-Live test
-
-100105
-
-Potential Privilege Escalation
-
-12
-
-Live test
-
-100106
-
-SSH Brute-Force Detection
-
-10
-
-Wazuh Logtest
-
-The custom rules are available in config/wazuh/wazuh-custom-rules.xml.
 
 #Security Testing
 
@@ -184,6 +156,8 @@ ssh-bruteforce-active-response.md
 
 The directory also contains notes on security hardening and vulnerability remediation.
 
+- [Windows Brute-Force Detection](detections/windows-brute-force-detection.md)
+
 #Project Structure
 
 wazuh-siem/
@@ -221,7 +195,7 @@ Troubleshooting Wazuh configuration and XML rule errors
 
 Perform an end-to-end SSH brute-force detection test
 
-Add additional Linux and Windows agents
+Expand Windows security monitoring and validate account-based event correlation
 
 Expand MITRE ATT&CK mappings
 
